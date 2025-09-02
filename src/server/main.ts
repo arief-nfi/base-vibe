@@ -12,6 +12,7 @@ import userRoutes from "./routes/system/user";
 import departmentRoutes from "./routes/demo/department";
 import masterRoutes from "./routes/master";
 import intRoutes from "./routes/int";
+import integrationRoutes from "./routes/integration";
 import { rateLimit } from "express-rate-limit";
 import fileUpload from "express-fileupload";
 
@@ -117,6 +118,54 @@ const swaggerOptions = {
             },
           },
         },
+        Webhook: {
+          type: "object",
+          properties: {
+            id: {
+              type: "string",
+              format: "uuid",
+              description: "Unique identifier for the webhook"
+            },
+            partnerId: {
+              type: "string",
+              format: "uuid",
+              description: "Partner identifier"
+            },
+            tenantId: {
+              type: "string",
+              format: "uuid",
+              description: "Tenant identifier"
+            },
+            eventType: {
+              type: "string",
+              maxLength: 100,
+              description: "Type of event to trigger webhook",
+              example: "user.created"
+            },
+            url: {
+              type: "string",
+              format: "uri",
+              maxLength: 1000,
+              description: "Webhook endpoint URL",
+              example: "https://partner.example.com/webhooks/events"
+            },
+            isActive: {
+              type: "boolean",
+              description: "Whether the webhook is active",
+              default: true
+            },
+            createdAt: {
+              type: "string",
+              format: "date-time",
+              description: "Creation timestamp"
+            },
+            updatedAt: {
+              type: "string",
+              format: "date-time",
+              description: "Last update timestamp"
+            }
+          }
+        }
       },
       securitySchemes: {
         ApiKeyAuth: {
@@ -135,6 +184,7 @@ const swaggerOptions = {
     "./src/server/routes/demo/*.ts",
     "./src/server/routes/master/*.ts",
     "./src/server/routes/int/*.ts",
+    "./src/server/routes/integration/**/*.ts",
   ],
 };
 
@@ -157,8 +207,11 @@ app.use("/api/demo/department", departmentRoutes);
 // master routes
 app.use("/api/master", masterRoutes);
 
-// integration routes
+// integration routes (external API)
 app.use("/int", intRoutes);
+
+// integration management routes (internal API)
+app.use("/api/integration", integrationRoutes);
 
 ViteExpress.listen(app, 5000, () =>
   console.log("Server is listening on port 5000..."),

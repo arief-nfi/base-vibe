@@ -91,6 +91,12 @@ async function seed() {
     { id: crypto.randomUUID(), code: "master.integrationInbound.edit", name: "Edit Integration Inbound", description: "Permission to edit integration inbound API keys", tenantId: sysTenantId },
     { id: crypto.randomUUID(), code: "master.integrationInbound.delete", name: "Delete Integration Inbound", description: "Permission to delete integration inbound API keys", tenantId: sysTenantId },
 
+    // master webhook permissions - system tenant
+    { id: crypto.randomUUID(), code: "master.webhook.view", name: "View Webhooks", description: "Permission to view webhook configurations", tenantId: sysTenantId },
+    { id: crypto.randomUUID(), code: "master.webhook.create", name: "Create Webhooks", description: "Permission to create webhook endpoints", tenantId: sysTenantId },
+    { id: crypto.randomUUID(), code: "master.webhook.edit", name: "Edit Webhooks", description: "Permission to edit webhook configurations", tenantId: sysTenantId },
+    { id: crypto.randomUUID(), code: "master.webhook.delete", name: "Delete Webhooks", description: "Permission to delete webhook endpoints", tenantId: sysTenantId },
+
     
 
     // public tenant permissions
@@ -129,6 +135,12 @@ async function seed() {
     { id: crypto.randomUUID(), code: "master.integrationInbound.add", name: "Create Integration Inbound", description: "Permission to add integration inbound API keys", tenantId: pubTenantId },
     { id: crypto.randomUUID(), code: "master.integrationInbound.edit", name: "Edit Integration Inbound", description: "Permission to edit integration inbound API keys", tenantId: pubTenantId },
     { id: crypto.randomUUID(), code: "master.integrationInbound.delete", name: "Delete Integration Inbound", description: "Permission to delete integration inbound API keys", tenantId: pubTenantId },
+
+    // master webhook permissions - public tenant
+    { id: crypto.randomUUID(), code: "master.webhook.view", name: "View Webhooks", description: "Permission to view webhook configurations", tenantId: pubTenantId },
+    { id: crypto.randomUUID(), code: "master.webhook.create", name: "Create Webhooks", description: "Permission to create webhook endpoints", tenantId: pubTenantId },
+    { id: crypto.randomUUID(), code: "master.webhook.edit", name: "Edit Webhooks", description: "Permission to edit webhook configurations", tenantId: pubTenantId },
+    { id: crypto.randomUUID(), code: "master.webhook.delete", name: "Delete Webhooks", description: "Permission to delete webhook endpoints", tenantId: pubTenantId },
 
   ]);
 

@@ -49,6 +49,12 @@ import IntegrationInboundAdd from "./pages/console/master/integration-inbound/In
 import IntegrationInboundDetail from "./pages/console/master/integration-inbound/IntegrationInboundDetail";
 import IntegrationInboundEdit from "./pages/console/master/integration-inbound/IntegrationInboundEdit";
 
+// Integration Outbound (Webhook) imports
+import WebhookList from "./pages/console/master/integration-outbound/WebhookList";
+import WebhookAdd from "./pages/console/master/integration-outbound/WebhookAdd";
+import WebhookDetail from "./pages/console/master/integration-outbound/WebhookDetail";
+import WebhookEdit from "./pages/console/master/integration-outbound/WebhookEdit";
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -122,6 +128,21 @@ export const router = createBrowserRouter([
                   { path: ":id", Component: IntegrationInboundDetail },
                   { path: ":id/edit", Component: IntegrationInboundEdit },
                   { path: ":id/delete"}
+                ]
+              },
+              { 
+                path: "integration-outbound", 
+                children: [
+                  { 
+                    path: "webhook", 
+                    children: [
+                      { index: true, Component: WebhookList },
+                      { path: "add", Component: WebhookAdd },
+                      { path: ":id", Component: WebhookDetail },
+                      { path: "edit/:id", Component: WebhookEdit },
+                      { path: ":id/delete"}
+                    ]
+                  }
                 ]
               },
             ]

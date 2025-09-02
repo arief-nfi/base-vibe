@@ -40,6 +40,10 @@ import CardShowcase from "./pages/console/showcase/CardShowcase";
 import TabShowcase from "./pages/console/showcase/TabShowcase";
 import FormShowcase from "./pages/console/showcase/FormShowcase";
 import RegisterTenant from "./pages/auth/RegisterTenant";
+import Partner from "./pages/console/master/partner/Partner";
+import PartnerAdd from "./pages/console/master/partner/PartnerAdd";
+import PartnerView from "./pages/console/master/partner/PartnerView";
+import PartnerEdit from "./pages/console/master/partner/PartnerEdit";
 
 export const router = createBrowserRouter([
   {
@@ -88,6 +92,21 @@ export const router = createBrowserRouter([
                   { path: "add", Component: DepartmentAdd },
                   { path: ":id", Component: DepartmentView },
                   { path: ":id/edit", Component: DepartmentEdit },
+                  { path: ":id/delete"}
+                ]
+              },
+            ]
+          },
+          { 
+            path: "master", 
+            children: [
+              { 
+                path: "partner", 
+                children: [
+                  { index: true, Component: Partner },
+                  { path: "add", Component: PartnerAdd },
+                  { path: ":id", Component: PartnerView },
+                  { path: ":id/edit", Component: PartnerEdit },
                   { path: ":id/delete"}
                 ]
               },

@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm';
 import { boolean, date, pgTable, primaryKey, time, timestamp, unique, uniqueIndex, uuid, varchar } from 'drizzle-orm/pg-core';
+import { partner } from './master';
 
 export const tenant = pgTable('sys_tenant', {
   id: uuid('id').primaryKey(),
@@ -120,6 +121,7 @@ export const rolePermission = pgTable('sys_role_permission', {
 // tenant relations
 export const tenantRelations = relations(tenant, ({ many }) => ({
   users: many(userTenant),
+  partners: many(partner),
 }));
 
 // user relations

@@ -11,6 +11,7 @@ import {
   Puzzle,
   Settings2,
   SquareTerminal,
+  Users,
 } from "lucide-react"
 
 import { NavMain } from "@client/components/nav-main"
@@ -87,6 +88,23 @@ const data = {
           id: "department",
           title: "Department",
           url: "/console/demo/department",
+        },
+      ],
+    },
+    {
+      id: "master",
+      title: "Master",
+      url: "/console/master",
+      icon: Users,
+      roles: "SYSADMIN",
+      permissions: ["master.partner.view"],
+      items: [
+        {
+          id: "partner",
+          title: "Partner",
+          url: "/console/master/partner",
+          roles: "SYSADMIN",
+          permissions: "master.partner.view",
         },
       ],
     },

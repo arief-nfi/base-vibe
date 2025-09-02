@@ -20,12 +20,13 @@ export const partner = pgTable('master_partner', {
   uniqueIndex("partner_name_unique_idx").on(t.name, t.tenantId),
 ]);
 
-// Partner relations
-export const partnerRelations = relations(partner, ({ one }) => ({
+// Partner relations  
+export const partnerRelations = relations(partner, ({ one, many }) => ({
   tenant: one(tenant, {
     fields: [partner.tenantId],
     references: [tenant.id],
   }),
+  // Integration inbound relation will be defined in integrationInbound.ts to avoid circular imports
 }));
 
 // Type exports

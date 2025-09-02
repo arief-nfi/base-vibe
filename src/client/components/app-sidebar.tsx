@@ -97,7 +97,7 @@ const data = {
       url: "/console/master",
       icon: Users,
       roles: "SYSADMIN",
-      permissions: ["master.partner.view"],
+      permissions: ["master.partner.view", "master.integrationInbound.view"],
       items: [
         {
           id: "partner",
@@ -105,6 +105,13 @@ const data = {
           url: "/console/master/partner",
           roles: "SYSADMIN",
           permissions: "master.partner.view",
+        },
+        {
+          id: "integration-inbound",
+          title: "Integration Inbound",
+          url: "/console/master/integration-inbound",
+          roles: "SYSADMIN",
+          permissions: "master.integrationInbound.view",
         },
       ],
     },

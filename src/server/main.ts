@@ -9,7 +9,7 @@ import tenantRoutes from "./routes/system/tenant";
 import optionRoutes from "./routes/system/option";
 import userRoutes from "./routes/system/user";
 import departmentRoutes from "./routes/demo/department";
-import partnerRoutes from "./routes/master/partner";
+import masterRoutes from "./routes/master";
 import { rateLimit } from 'express-rate-limit'
 import fileUpload from "express-fileupload";
 
@@ -82,7 +82,7 @@ app.use('/api/system/user', userRoutes);
 app.use('/api/demo/department', departmentRoutes);
 
 // master routes
-app.use('/api/master/partner', partnerRoutes);
+app.use('/api/master', masterRoutes);
 
 ViteExpress.listen(app, 5000, () =>
   console.log("Server is listening on port 5000..."),

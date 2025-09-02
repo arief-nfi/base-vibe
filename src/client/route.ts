@@ -44,6 +44,10 @@ import Partner from "./pages/console/master/partner/Partner";
 import PartnerAdd from "./pages/console/master/partner/PartnerAdd";
 import PartnerView from "./pages/console/master/partner/PartnerView";
 import PartnerEdit from "./pages/console/master/partner/PartnerEdit";
+import IntegrationInbound from "./pages/console/master/integration-inbound/IntegrationInboundList";
+import IntegrationInboundAdd from "./pages/console/master/integration-inbound/IntegrationInboundAdd";
+import IntegrationInboundDetail from "./pages/console/master/integration-inbound/IntegrationInboundDetail";
+import IntegrationInboundEdit from "./pages/console/master/integration-inbound/IntegrationInboundEdit";
 
 export const router = createBrowserRouter([
   {
@@ -107,6 +111,16 @@ export const router = createBrowserRouter([
                   { path: "add", Component: PartnerAdd },
                   { path: ":id", Component: PartnerView },
                   { path: ":id/edit", Component: PartnerEdit },
+                  { path: ":id/delete"}
+                ]
+              },
+              { 
+                path: "integration-inbound", 
+                children: [
+                  { index: true, Component: IntegrationInbound },
+                  { path: "add", Component: IntegrationInboundAdd },
+                  { path: ":id", Component: IntegrationInboundDetail },
+                  { path: ":id/edit", Component: IntegrationInboundEdit },
                   { path: ":id/delete"}
                 ]
               },

@@ -2,6 +2,7 @@ import { relations } from 'drizzle-orm';
 import { boolean, date, pgTable, primaryKey, time, timestamp, unique, uniqueIndex, uuid, varchar } from 'drizzle-orm/pg-core';
 import { partner } from './master';
 import { webhook } from './webhook';
+import { webhook_event } from './webhook_event';
 
 export const tenant = pgTable('sys_tenant', {
   id: uuid('id').primaryKey(),
@@ -124,6 +125,7 @@ export const tenantRelations = relations(tenant, ({ many }) => ({
   users: many(userTenant),
   partners: many(partner),
   webhooks: many(webhook),
+  webhookEvents: many(webhook_event),
 }));
 
 // user relations

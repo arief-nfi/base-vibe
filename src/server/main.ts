@@ -13,6 +13,7 @@ import departmentRoutes from "./routes/demo/department";
 import masterRoutes from "./routes/master";
 import intRoutes from "./routes/int";
 import integrationRoutes from "./routes/integration";
+import webhookEventRoutes from "./routes/webhook/event";
 import { rateLimit } from "express-rate-limit";
 import fileUpload from "express-fileupload";
 
@@ -185,6 +186,7 @@ const swaggerOptions = {
     "./src/server/routes/master/*.ts",
     "./src/server/routes/int/*.ts",
     "./src/server/routes/integration/**/*.ts",
+    "./src/server/routes/webhook/*.ts",
   ],
 };
 
@@ -212,6 +214,9 @@ app.use("/int", intRoutes);
 
 // integration management routes (internal API)
 app.use("/api/integration", integrationRoutes);
+
+// Webhook event routes
+app.use("/api/webhook-events", webhookEventRoutes);
 
 ViteExpress.listen(app, 5000, () =>
   console.log("Server is listening on port 5000..."),

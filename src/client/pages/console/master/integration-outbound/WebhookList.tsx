@@ -9,6 +9,7 @@ import { Badge } from '@client/components/ui/badge';
 import { Trash2, Edit, Eye, Plus, Search, Filter } from 'lucide-react';
 import Breadcrumbs, { createBreadcrumbItems, useBreadcrumbs } from '@client/components/console/Breadcrumbs';
 import { webhookApi } from '@client/lib/api/webhookApi';
+import { webhookEventApi } from '@client/lib/api/webhookEventApi';
 import { Webhook, WebhookQueryParams } from '@client/schemas/webhookSchema';
 import { useAuth } from '@client/provider/AuthProvider';
 import { toast } from 'sonner';
@@ -19,6 +20,8 @@ const WebhookList = () => {
   const [webhooks, setWebhooks] = useState<Webhook[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [eventTypes, setEventTypes] = useState<string[]>([]);
+  const [loadingEventTypes, setLoadingEventTypes] = useState(true);
   
   // Pagination and filtering state
   const [pagination, setPagination] = useState({
@@ -58,11 +61,35 @@ const WebhookList = () => {
     }
   };
 
+  const loadEventTypes = async () => {
+    try {
+      setLoadingEventTypes(true);
+      const activeEventNames = await webhookEventApi.getActiveEventNames();
+      setEventTypes(activeEventNames);
+    } catch (error) {
+      console.error('Failed to load event types:', error);
+      // Fallback to some default types if API fails
+      setEventTypes([
+        'user.created',
+        'user.updated', 
+        'partner.created',
+        'partner.updated',
+        'integration.key.created'
+      ]);
+    } finally {
+      setLoadingEventTypes(false);
+    }
+  };
+
   useEffect(() => {
     if (isAuthorized([], ['master.webhook.view'])) {
       loadWebhooks();
     }
   }, [filters, isAuthorized]);
+
+  useEffect(() => {
+    loadEventTypes();
+  }, []);
 
   const handlePageChange = (newPage: number) => {
     setFilters(prev => ({ ...prev, page: newPage }));
@@ -146,17 +173,17 @@ const WebhookList = () => {
               />
             </div>
             
-            <Select onValueChange={handleEventTypeFilter}>
+            <Select onValueChange={handleEventTypeFilter} disabled={loadingEventTypes}>
               <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by event type" />
+                <SelectValue placeholder={loadingEventTypes ? "Loading..." : "Filter by event type"} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Event Types</SelectItem>
-                <SelectItem value="user.created">User Created</SelectItem>
-                <SelectItem value="user.updated">User Updated</SelectItem>
-                <SelectItem value="partner.created">Partner Created</SelectItem>
-                <SelectItem value="partner.updated">Partner Updated</SelectItem>
-                <SelectItem value="integration.key.created">API Key Created</SelectItem>
+                {eventTypes.map((eventType) => (
+                  <SelectItem key={eventType} value={eventType}>
+                    {eventType}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 

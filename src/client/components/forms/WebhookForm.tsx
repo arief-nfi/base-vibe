@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '../ui/button';
@@ -6,8 +6,9 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Checkbox } from '@client/components/ui/checkbox';
-import { webhookSchema, WebhookFormData, WEBHOOK_EVENT_TYPES } from '../../schemas/webhookSchema';
+import { webhookSchema, WebhookFormData } from '../../schemas/webhookSchema';
 import { Partner } from '../../schemas/partnerSchema';
+import { webhookEventApi } from '../../lib/api/webhookEventApi';
 
 interface WebhookFormProps {
   initialData?: Partial<WebhookFormData>;
@@ -26,6 +27,9 @@ export default function WebhookForm({
   isLoading = false,
   isEdit = false,
 }: WebhookFormProps) {
+  const [eventTypes, setEventTypes] = useState<string[]>([]);
+  const [loadingEventTypes, setLoadingEventTypes] = useState(true);
+
   const {
     register,
     handleSubmit,
@@ -45,6 +49,31 @@ export default function WebhookForm({
   });
 
   const watchedIsActive = watch('isActive');
+
+  // Load available event types
+  useEffect(() => {
+    const loadEventTypes = async () => {
+      try {
+        setLoadingEventTypes(true);
+        const activeEventNames = await webhookEventApi.getActiveEventNames();
+        setEventTypes(activeEventNames);
+      } catch (error) {
+        console.error('Failed to load event types:', error);
+        // Fallback to some default types if API fails
+        setEventTypes([
+          'user.created',
+          'user.updated', 
+          'partner.created',
+          'partner.updated',
+          'integration.key.created'
+        ]);
+      } finally {
+        setLoadingEventTypes(false);
+      }
+    };
+
+    loadEventTypes();
+  }, []);
 
   useEffect(() => {
     if (initialData) {
@@ -93,20 +122,32 @@ export default function WebhookForm({
           <Select
             onValueChange={(value) => setValue('eventType', value)}
             defaultValue={initialData?.eventType}
+            disabled={loadingEventTypes}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select event type" />
+              <SelectValue placeholder={loadingEventTypes ? "Loading event types..." : "Select event type"} />
             </SelectTrigger>
             <SelectContent>
-              {WEBHOOK_EVENT_TYPES.map((eventType) => (
-                <SelectItem key={eventType} value={eventType}>
-                  {eventType}
+              {eventTypes.length === 0 && !loadingEventTypes ? (
+                <SelectItem value="" disabled>
+                  No event types available
                 </SelectItem>
-              ))}
+              ) : (
+                eventTypes.map((eventType) => (
+                  <SelectItem key={eventType} value={eventType}>
+                    {eventType}
+                  </SelectItem>
+                ))
+              )}
             </SelectContent>
           </Select>
           {errors.eventType && (
             <p className="text-sm text-red-600">{errors.eventType.message}</p>
+          )}
+          {eventTypes.length === 0 && !loadingEventTypes && (
+            <p className="text-sm text-amber-600">
+              No active webhook events found. Please create webhook events first.
+            </p>
           )}
         </div>
 
@@ -132,7 +173,7 @@ export default function WebhookForm({
           <Checkbox
             id="isActive"
             checked={watchedIsActive}
-            onCheckedChange={(checked) => setValue('isActive', checked)}
+            onCheckedChange={(checked) => setValue('isActive', !!checked)}
           />
           <Label htmlFor="isActive">Active</Label>
           <p className="text-sm text-gray-500">

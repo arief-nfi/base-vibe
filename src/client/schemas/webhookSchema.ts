@@ -50,17 +50,5 @@ export interface WebhookQueryParams {
   isActive?: boolean;
 }
 
-// Available event types for webhooks
-export const WEBHOOK_EVENT_TYPES = [
-  'user.created',
-  'user.updated',
-  'user.deleted',
-  'partner.created',
-  'partner.updated',
-  'partner.deleted',
-  'integration.key.created',
-  'integration.key.updated',
-  'integration.key.deleted',
-] as const;
-
-export type WebhookEventType = typeof WEBHOOK_EVENT_TYPES[number];
+// Note: Event types are now loaded dynamically from the webhook events API
+// instead of using hardcoded values. See webhookEventApi.getActiveEventNames()

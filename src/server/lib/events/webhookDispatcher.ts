@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { eq, and } from 'drizzle-orm';
 import { db } from '../db';
-import { webhook } from '../db/schema';
+import { webhook, webhook_event } from '../db/schema';
 
 export interface WebhookPayload {
   eventType: string;
@@ -165,18 +165,55 @@ export async function dispatchIntegrationKeyCreatedEvent(tenantId: string, keyDa
 }
 
 /**
- * Get list of available event types
+ * Get list of available event types for a specific tenant
+ * @param tenantId - The tenant ID to get event types for
+ * @returns Promise<string[]> - Array of active event type names
  */
-export function getAvailableEventTypes(): string[] {
-  return [
-    'user.created',
-    'user.updated',
-    'user.deleted',
-    'partner.created',
-    'partner.updated',
-    'partner.deleted',
-    'integration.key.created',
-    'integration.key.updated',
-    'integration.key.deleted',
-  ];
+export async function getAvailableEventTypes(tenantId: string): Promise<string[]> {
+  try {
+    const events = await db
+      .select({ name: webhook_event.name })
+      .from(webhook_event)
+      .where(and(
+        eq(webhook_event.tenantId, tenantId),
+        eq(webhook_event.isActive, true)
+      ));
+    
+    return events.map(e => e.name);
+  } catch (error) {
+    console.error('Error fetching available event types:', error);
+    
+    // Fallback to default event types if database query fails
+    console.log('⚠️  [WEBHOOK DISPATCHER] Falling back to default event types due to database error');
+    return [
+      'user.created',
+      'user.updated',
+      'user.deleted',
+      'partner.created',
+      'partner.updated',
+      'partner.deleted',
+      'integration.key.created',
+      'integration.key.updated',
+      'integration.key.deleted',
+    ];
+  }
+}
+
+/**
+ * Get all event types (including inactive) for a specific tenant
+ * @param tenantId - The tenant ID to get event types for
+ * @returns Promise<WebhookEvent[]> - Array of all webhook events
+ */
+export async function getAllEventTypes(tenantId: string) {
+  try {
+    const events = await db
+      .select()
+      .from(webhook_event)
+      .where(eq(webhook_event.tenantId, tenantId));
+    
+    return events;
+  } catch (error) {
+    console.error('Error fetching all event types:', error);
+    return [];
+  }
 }

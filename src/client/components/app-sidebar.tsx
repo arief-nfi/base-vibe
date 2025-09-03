@@ -97,7 +97,7 @@ const data = {
       url: "/console/master",
       icon: Users,
       roles: "SYSADMIN",
-      permissions: ["master.partner.view", "master.integrationInbound.view", "master.webhook.view"],
+      permissions: ["master.partner.view", "master.integrationInbound.view", "master.webhook.view", "webhook.event.view"],
       items: [
         {
           id: "partner",
@@ -119,6 +119,13 @@ const data = {
           url: "/console/master/integration-outbound/webhook",
           roles: "SYSADMIN",
           permissions: "master.webhook.view",
+        },
+        {
+          id: "webhook-events",
+          title: "Webhook Events",
+          url: "/console/master/webhook-events",
+          roles: "SYSADMIN",
+          permissions: "webhook.event.view",
         },
       ],
     },

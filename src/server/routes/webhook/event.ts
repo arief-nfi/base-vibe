@@ -51,7 +51,7 @@ eventRoutes.use(authenticated());
  *       403:
  *         description: Insufficient permissions
  */
-eventRoutes.get('/', authorized('ADMIN', 'webhook.event.view'), async (req, res) => {
+eventRoutes.get('/', authorized('SYSADMIN', 'webhook.event.view'), async (req, res) => {
   try {
     const tenantId = req.user!.activeTenantId;
     const query = webhookEventQuerySchema.parse(req.query);
@@ -141,7 +141,7 @@ eventRoutes.get('/', authorized('ADMIN', 'webhook.event.view'), async (req, res)
  *       403:
  *         description: Insufficient permissions
  */
-eventRoutes.post('/', validateData(webhookEventAddSchema), authorized('ADMIN', 'webhook.event.create'), async (req, res) => {
+eventRoutes.post('/', validateData(webhookEventAddSchema), authorized('SYSADMIN', 'webhook.event.create'), async (req, res) => {
   try {
     const { name, description, isActive } = req.body;
     const tenantId = req.user!.activeTenantId;
@@ -206,7 +206,7 @@ eventRoutes.post('/', validateData(webhookEventAddSchema), authorized('ADMIN', '
  *       404:
  *         description: Webhook event not found
  */
-eventRoutes.get('/:id', authorized('ADMIN', 'webhook.event.view'), async (req, res) => {
+eventRoutes.get('/:id', authorized('SYSADMIN', 'webhook.event.view'), async (req, res) => {
   try {
     const tenantId = req.user!.activeTenantId;
     const { id } = req.params;
@@ -272,7 +272,7 @@ eventRoutes.get('/:id', authorized('ADMIN', 'webhook.event.view'), async (req, r
  *       404:
  *         description: Webhook event not found
  */
-eventRoutes.put('/:id', validateData(webhookEventEditSchema), authorized('ADMIN', 'webhook.event.edit'), async (req, res) => {
+eventRoutes.put('/:id', validateData(webhookEventEditSchema), authorized('SYSADMIN', 'webhook.event.edit'), async (req, res) => {
   try {
     const { id } = req.params;
     const { name, description, isActive } = req.body;
@@ -349,7 +349,7 @@ eventRoutes.put('/:id', validateData(webhookEventEditSchema), authorized('ADMIN'
  *       404:
  *         description: Webhook event not found
  */
-eventRoutes.delete('/:id', authorized('ADMIN', 'webhook.event.delete'), async (req, res) => {
+eventRoutes.delete('/:id', authorized('SYSADMIN', 'webhook.event.delete'), async (req, res) => {
   try {
     const { id } = req.params;
     const tenantId = req.user!.activeTenantId;

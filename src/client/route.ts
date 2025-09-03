@@ -59,6 +59,13 @@ import WebhookAdd from "./pages/console/master/integration-outbound/WebhookAdd";
 import WebhookDetail from "./pages/console/master/integration-outbound/WebhookDetail";
 import WebhookEdit from "./pages/console/master/integration-outbound/WebhookEdit";
 
+// WMS Inventory Items
+import { InventoryItemsListPage } from "./pages/console/wms/InventoryItemsListPage";
+import { InventoryItemViewPage } from "./pages/console/wms/InventoryItemViewPage";
+import { InventoryItemAddPage } from "./pages/console/wms/InventoryItemAddPage";
+import { InventoryItemEditPage } from "./pages/console/wms/InventoryItemEditPage";
+import { InventoryItemAdjustPage } from "./pages/console/wms/InventoryItemAdjustPage";
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -206,6 +213,21 @@ export const router = createBrowserRouter([
                   { path: ":id", Component: UserView },
                   { path: ":id/edit", Component: UserEdit },
                   { path: ":id/reset-password", Component: UserResetPassword }
+                ]
+              },
+            ]
+          },
+          { 
+            path: "wms", 
+            children: [
+              { 
+                path: "inventory-items", 
+                children: [
+                  { index: true, Component: InventoryItemsListPage },
+                  { path: "add", Component: InventoryItemAddPage },
+                  { path: ":id", Component: InventoryItemViewPage },
+                  { path: ":id/edit", Component: InventoryItemEditPage },
+                  { path: ":id/adjust", Component: InventoryItemAdjustPage }
                 ]
               },
             ]

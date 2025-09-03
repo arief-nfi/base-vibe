@@ -3,8 +3,8 @@ import { db } from '../lib/db';
 import { inventoryItems, products, bins } from '../lib/db/schema';
 import { and, eq, sql } from 'drizzle-orm';
 
-export const inventoryItemAddSchema = z.object({
-  tenantId: z.string().uuid("Invalid tenant ID"),
+// Schema for API requests (without tenantId - it's added from authenticated user)
+export const inventoryItemAddApiSchema = z.object({
   productId: z.string().uuid("Invalid product ID"),
   binId: z.string().uuid("Invalid bin ID"),
   availableQuantity: z.number()
@@ -34,6 +34,11 @@ export const inventoryItemAddSchema = z.object({
     .min(0, "Cost per unit cannot be negative")
     .optional()
     .nullable(),
+});
+
+// Full schema with tenantId for internal validation (includes all async refinements)
+export const inventoryItemAddSchema = inventoryItemAddApiSchema.extend({
+  tenantId: z.string().uuid("Invalid tenant ID"),
 })
 .refine(async (data) => {
   // Verify product exists and belongs to tenant
@@ -83,6 +88,8 @@ export const inventoryItemAddSchema = z.object({
 
 export const inventoryItemEditSchema = z.object({
   id: z.string().uuid("Invalid inventory item ID"),
+  productId: z.string().uuid("Invalid product ID"),
+  binId: z.string().uuid("Invalid bin ID"),
   availableQuantity: z.number()
     .int("Available quantity must be an integer")
     .min(0, "Available quantity cannot be negative"),
@@ -112,8 +119,8 @@ export const inventoryItemEditSchema = z.object({
 });
 
 export const inventoryItemQuerySchema = z.object({
-  page: z.string().transform(val => parseInt(val, 10)).pipe(z.number().min(1)).default("1"),
-  perPage: z.string().transform(val => parseInt(val, 10)).pipe(z.number().min(1).max(100)).default("10"),
+  page: z.string().transform(val => parseInt(val, 10)).pipe(z.number().min(1)).default(1),
+  perPage: z.string().transform(val => parseInt(val, 10)).pipe(z.number().min(1).max(100)).default(10),
   sort: z.enum([
     "productSku", "productName", "binName", "availableQuantity", "reservedQuantity", 
     "expiryDate", "batchNumber", "lotNumber", "receivedDate", "costPerUnit", 
@@ -126,11 +133,11 @@ export const inventoryItemQuerySchema = z.object({
   warehouseId: z.string().uuid().optional(),
   lowStock: z.string().transform(val => val === 'true').pipe(z.boolean()).optional(),
   expiringSoon: z.string().transform(val => val === 'true').pipe(z.boolean()).optional(),
-  expiryDays: z.string().transform(val => parseInt(val, 10)).pipe(z.number().min(1).max(365)).default("30"),
+  expiryDays: z.string().transform(val => parseInt(val, 10)).pipe(z.number().min(1).max(365)).default(30),
 });
 
-export const inventoryAdjustmentSchema = z.object({
-  id: z.string().uuid("Invalid inventory item ID"),
+// Schema for API requests (without id - it comes from URL params)
+export const inventoryAdjustmentApiSchema = z.object({
   adjustmentType: z.enum(["increase", "decrease"]),
   quantity: z.number()
     .int("Quantity must be an integer")
@@ -138,6 +145,11 @@ export const inventoryAdjustmentSchema = z.object({
   reason: z.string()
     .min(1, "Reason is required")
     .max(500, "Reason must be at most 500 characters"),
+});
+
+// Full schema with id for internal validation
+export const inventoryAdjustmentSchema = inventoryAdjustmentApiSchema.extend({
+  id: z.string().uuid("Invalid inventory item ID"),
 });
 
 // Type exports

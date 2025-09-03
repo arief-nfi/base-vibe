@@ -13,12 +13,18 @@ export const useErrorHandler = () => {
     throw error;
   }
 
+  const handleError = useCallback((error: any) => {
+    console.error('Error handled:', error);
+    const errorToThrow = error instanceof Error ? error : new Error(error.message || 'An unexpected error occurred');
+    setError(errorToThrow);
+  }, []);
+
   const throwError = useCallback((errorMessage: string | Error) => {
     const errorToThrow = errorMessage instanceof Error ? errorMessage : new Error(errorMessage);
     setError(errorToThrow);
   }, []);
 
-  return { throwError };
+  return { handleError, throwError };
 };
 
 /**

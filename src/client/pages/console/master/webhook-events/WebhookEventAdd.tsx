@@ -43,7 +43,7 @@ export default function WebhookEventAdd() {
     navigate('/console/master/webhook-events');
   };
 
-  if (!isAuthorized([], ['webhook.event.create'])) {
+  if (!isAuthorized(["SYSADMIN"], ['webhook.event.create'])) {
     return (
       <div className="flex items-center justify-center h-64">
         <p className="text-gray-500">You don't have permission to create webhook events.</p>
@@ -52,7 +52,7 @@ export default function WebhookEventAdd() {
   }
 
   return (
-    <div className="container mx-auto space-y-6">
+    <div className="space-y-6">
       <Breadcrumbs items={breadcrumbs} />
       
       {/* Header */}

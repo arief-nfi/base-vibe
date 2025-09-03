@@ -47,9 +47,9 @@ export default function WebhookEventDetail() {
   };
 
   useEffect(() => {
-    if (id && isAuthorized([], ['webhook.event.view'])) {
+    if (id && isAuthorized(["SYSADMIN"], ['webhook.event.view'])) {
       loadWebhookEvent();
-    } else if (!isAuthorized([], ['webhook.event.view'])) {
+    } else if (!isAuthorized(["SYSADMIN"], ['webhook.event.view'])) {
       navigate('/console/master/webhook-events');
     }
   }, [id, isAuthorized]);
@@ -85,7 +85,7 @@ export default function WebhookEventDetail() {
 
   if (!webhookEvent) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle className="text-red-600">Error</CardTitle>
@@ -102,7 +102,7 @@ export default function WebhookEventDetail() {
   }
 
   return (
-    <div className="container mx-auto space-y-6">
+    <div className="space-y-6">
       <Breadcrumbs items={breadcrumbs} />
       
       {/* Header */}

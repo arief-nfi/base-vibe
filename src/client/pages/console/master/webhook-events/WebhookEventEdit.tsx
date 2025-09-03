@@ -63,9 +63,9 @@ export default function WebhookEventEdit() {
   };
 
   useEffect(() => {
-    if (id && isAuthorized([], ["webhook.event.edit"])) {
+    if (id && isAuthorized(["SYSADMIN"], ["webhook.event.edit"])) {
       loadWebhookEvent();
-    } else if (!isAuthorized([], ["webhook.event.edit"])) {
+    } else if (!isAuthorized(["SYSADMIN"], ["webhook.event.edit"])) {
       navigate("/console/master/webhook-events");
     }
   }, [id, isAuthorized]);
@@ -91,7 +91,7 @@ export default function WebhookEventEdit() {
 
   if (loading) {
     return (
-      <div className="container mx-auto space-y-6">
+      <div className="space-y-6">
         <Card>
           <CardContent className="text-center py-8">
             <p>Loading webhook event...</p>
@@ -103,7 +103,7 @@ export default function WebhookEventEdit() {
 
   if (!webhookEvent) {
     return (
-      <div className="container mx-auto space-y-6">
+      <div className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle className="text-red-600">Error</CardTitle>
@@ -123,7 +123,7 @@ export default function WebhookEventEdit() {
   }
 
   return (
-    <div className="container mx-auto space-y-6">
+    <div className="space-y-6">
       <Breadcrumbs items={breadcrumbs} />
 
       {/* Header */}

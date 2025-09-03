@@ -62,7 +62,7 @@ const WebhookEventList = () => {
   };
 
   useEffect(() => {
-    if (isAuthorized([], ['webhook.event.view'])) {
+    if (isAuthorized(["SYSADMIN"], ['webhook.event.view'])) {
       loadWebhookEvents();
     }
   }, [filters, isAuthorized]);
@@ -110,7 +110,7 @@ const WebhookEventList = () => {
     }
   };
 
-  if (!isAuthorized([], ['webhook.event.view'])) {
+  if (!isAuthorized(["SYSADMIN"], ['webhook.event.view'])) {
     return (
       <div className="flex items-center justify-center h-64">
         <p className="text-gray-500">You don't have permission to view webhook events.</p>
@@ -119,7 +119,7 @@ const WebhookEventList = () => {
   }
 
   return (
-    <div className="container mx-auto space-y-6">
+    <div className="space-y-6">
       <Breadcrumbs items={breadcrumbs} />
       
       {/* Header */}
@@ -130,7 +130,7 @@ const WebhookEventList = () => {
             Manage webhook event types that can trigger notifications to partners
           </p>
         </div>
-        {isAuthorized([], ['webhook.event.create']) && (
+        {isAuthorized(["SYSADMIN"], ['webhook.event.create']) && (
           <Button onClick={() => navigate('/console/master/webhook-events/add')}>
             <Plus className="mr-2 h-4 w-4" />
             Add Event Type
@@ -212,7 +212,7 @@ const WebhookEventList = () => {
                   : "No webhook events found."
                 }
               </p>
-              {isAuthorized([], ['webhook.event.create']) && (
+              {isAuthorized(["SYSADMIN"], ['webhook.event.create']) && (
                 <Button 
                   onClick={() => navigate('/console/master/webhook-events/add')} 
                   className="mt-4"
@@ -255,7 +255,7 @@ const WebhookEventList = () => {
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        {isAuthorized([], ['webhook.event.edit']) && (
+                        {isAuthorized(["SYSADMIN"], ['webhook.event.edit']) && (
                           <Button 
                             variant="outline" 
                             size="sm"
@@ -264,7 +264,7 @@ const WebhookEventList = () => {
                             <Edit className="h-4 w-4" />
                           </Button>
                         )}
-                        {isAuthorized([], ['webhook.event.delete']) && (
+                        {isAuthorized(["SYSADMIN"], ['webhook.event.delete']) && (
                           <Button 
                             variant="outline" 
                             size="sm"

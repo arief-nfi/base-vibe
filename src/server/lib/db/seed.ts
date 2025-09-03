@@ -1,6 +1,8 @@
 import bcrypt from "bcryptjs";
+import { eq } from "drizzle-orm";
 import { db } from ".";
 import { permission, role, rolePermission, tenant, user, userRole, userTenant } from "./schema/system";
+import crypto from 'crypto';
 
 async function seed() {
 
@@ -30,10 +32,14 @@ async function seed() {
   console.log("Seeding role");
   const sysRoleId = crypto.randomUUID();
   const pubRoleId = crypto.randomUUID();
+  const sysAdminRoleId = crypto.randomUUID();
+  const pubAdminRoleId = crypto.randomUUID();
   await db.insert(role).values([
     { id: sysRoleId, code: "SYSADMIN", name: "System Admin", description: "Role System Admin", isSystem: true, tenantId: sysTenantId },
+    { id: sysAdminRoleId, code: "ADMIN", name: "Admin", description: "Admin Role", isSystem: false, tenantId: sysTenantId },
     { id: crypto.randomUUID(), code: "USER", name: "Role User", description: "Regular user role", isSystem: false, tenantId: sysTenantId },
     { id: pubRoleId, code: "SYSADMIN", name: "System Admin", description: "Role System Admin", isSystem: true, tenantId: pubTenantId },
+    { id: pubAdminRoleId, code: "ADMIN", name: "Admin", description: "Admin Role", isSystem: false, tenantId: pubTenantId },
     { id: crypto.randomUUID(), code: "USER", name: "Role User", description: "Regular user role", isSystem: false, tenantId: pubTenantId }
   ]);
 
@@ -46,7 +52,9 @@ async function seed() {
   console.log("Seeding user role");
   await db.insert(userRole).values([
     { userId: userId, roleId: sysRoleId, tenantId: sysTenantId },
-    { userId: userId, roleId: pubRoleId, tenantId: pubTenantId }
+    { userId: userId, roleId: sysAdminRoleId, tenantId: sysTenantId },
+    { userId: userId, roleId: pubRoleId, tenantId: pubTenantId },
+    { userId: userId, roleId: pubAdminRoleId, tenantId: pubTenantId }
   ]);
 
   console.log("Seeding permission");
@@ -142,13 +150,45 @@ async function seed() {
     { id: crypto.randomUUID(), code: "master.webhook.edit", name: "Edit Webhooks", description: "Permission to edit webhook configurations", tenantId: pubTenantId },
     { id: crypto.randomUUID(), code: "master.webhook.delete", name: "Delete Webhooks", description: "Permission to delete webhook endpoints", tenantId: pubTenantId },
 
+    // WMS inventory permissions - system tenant
+    { id: crypto.randomUUID(), code: "wms.inventory.view", name: "View Inventory", description: "Permission to view inventory items", tenantId: sysTenantId },
+    { id: crypto.randomUUID(), code: "wms.inventory.create", name: "Create Inventory", description: "Permission to create inventory items", tenantId: sysTenantId },
+    { id: crypto.randomUUID(), code: "wms.inventory.edit", name: "Edit Inventory", description: "Permission to edit inventory items", tenantId: sysTenantId },
+    { id: crypto.randomUUID(), code: "wms.inventory.delete", name: "Delete Inventory", description: "Permission to delete inventory items", tenantId: sysTenantId },
+    { id: crypto.randomUUID(), code: "wms.inventory.adjust", name: "Adjust Inventory", description: "Permission to adjust inventory quantities", tenantId: sysTenantId },
+
+    // WMS inventory permissions - public tenant
+    { id: crypto.randomUUID(), code: "wms.inventory.view", name: "View Inventory", description: "Permission to view inventory items", tenantId: pubTenantId },
+    { id: crypto.randomUUID(), code: "wms.inventory.create", name: "Create Inventory", description: "Permission to create inventory items", tenantId: pubTenantId },
+    { id: crypto.randomUUID(), code: "wms.inventory.edit", name: "Edit Inventory", description: "Permission to edit inventory items", tenantId: pubTenantId },
+    { id: crypto.randomUUID(), code: "wms.inventory.delete", name: "Delete Inventory", description: "Permission to delete inventory items", tenantId: pubTenantId },
+    { id: crypto.randomUUID(), code: "wms.inventory.adjust", name: "Adjust Inventory", description: "Permission to adjust inventory quantities", tenantId: pubTenantId }
+
   ]);
 
-  // console.log("Seeding role permission");
-  // await db.insert(rolePermission).values([
-  //   { roleId: sysRoleId, permissionId: sysPermissionId, tenantId: sysTenantId },
-  //   { roleId: pubRoleId, permissionId: pubPermissionId, tenantId: pubTenantId }
-  // ]);
+  console.log("Seeding role permission");
+  // Get all permissions for system tenant
+  const sysPermissions = await db.select().from(permission).where(eq(permission.tenantId, sysTenantId));
+  // Get all permissions for public tenant
+  const pubPermissions = await db.select().from(permission).where(eq(permission.tenantId, pubTenantId));
+  
+  // Link all permissions to ADMIN roles
+  const sysAdminRolePermissions = sysPermissions.map(perm => ({
+    roleId: sysAdminRoleId,
+    permissionId: perm.id,
+    tenantId: sysTenantId
+  }));
+  
+  const pubAdminRolePermissions = pubPermissions.map(perm => ({
+    roleId: pubAdminRoleId,
+    permissionId: perm.id,
+    tenantId: pubTenantId
+  }));
+  
+  await db.insert(rolePermission).values([
+    ...sysAdminRolePermissions,
+    ...pubAdminRolePermissions
+  ]);
 
 }
 

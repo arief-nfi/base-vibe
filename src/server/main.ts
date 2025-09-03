@@ -14,6 +14,7 @@ import masterRoutes from "./routes/master";
 import intRoutes from "./routes/int";
 import integrationRoutes from "./routes/integration";
 import webhookEventRoutes from "./routes/webhook/event";
+import wmsRoutes from "./routes/wms";
 import { rateLimit } from "express-rate-limit";
 import fileUpload from "express-fileupload";
 
@@ -187,6 +188,7 @@ const swaggerOptions = {
     "./src/server/routes/int/*.ts",
     "./src/server/routes/integration/**/*.ts",
     "./src/server/routes/webhook/*.ts",
+    "./src/server/routes/wms/*.ts",
   ],
 };
 
@@ -217,6 +219,9 @@ app.use("/api/integration", integrationRoutes);
 
 // Webhook event routes
 app.use("/api/webhook-events", webhookEventRoutes);
+
+// WMS routes
+app.use("/api/wms", wmsRoutes);
 
 ViteExpress.listen(app, 5000, () =>
   console.log("Server is listening on port 5000..."),

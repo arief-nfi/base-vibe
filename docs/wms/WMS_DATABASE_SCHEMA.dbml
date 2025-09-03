@@ -1,0 +1,561 @@
+// Multi-Tenant Warehouse Management System (WMS) Database Schema
+
+// ================================================================================
+// MASTER DATA MANAGEMENT
+// ================================================================================
+Table product_types {
+  id serial [pk, increment]
+  tenant_id integer [ref: > tenant.id, not null]
+  name varchar(255) [not null]
+  description text
+  category varchar(100)
+  is_active boolean [default: true]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  
+  indexes {
+    (tenant_id, name) [unique]
+    tenant_id
+  }
+}
+Table package_types {
+  id serial [pk, increment]
+  tenant_id integer [ref: > tenant.id, not null]
+  name varchar(255) [not null]
+  description text
+  units_per_package integer
+  barcode varchar(100)
+  dimensions varchar(100)
+  weight decimal(10,3)
+  is_active boolean [default: true]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  
+  indexes {
+    (tenant_id, name) [unique]
+    tenant_id
+  }
+}
+Table products {
+  id serial [pk, increment]
+  tenant_id integer [ref: > tenant.id, not null]
+  inventory_type_id integer [ref: > product_types.id]
+  package_type_id integer [ref: > package_types.id]
+  sku varchar(255) [not null]
+  name varchar(255) [not null]
+  description text
+  minimum_stock_level integer
+  reorder_point integer
+  required_temperature_min decimal(5,2)
+  required_temperature_max decimal(5,2)
+  weight decimal(10,3)
+  dimensions varchar(100)
+  active boolean [default: true]
+  has_expiry_date boolean [default: false]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  
+  indexes {
+    (tenant_id, sku) [unique]
+    tenant_id
+  }
+}
+// ================================================================================
+// SUPPLIER & CUSTOMER MANAGEMENT
+// ================================================================================
+Table suppliers {
+  id serial [pk, increment]
+  tenant_id integer [ref: > tenant.id, not null]
+  name varchar(255) [not null]
+  contact_person varchar(255)
+  email varchar(255)
+  phone varchar(50)
+  tax_id varchar(100)
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  
+  indexes {
+    (tenant_id, name) [unique]
+    tenant_id
+  }
+}
+Table supplier_locations {
+  id serial [pk, increment]
+  supplier_id integer [ref: > suppliers.id, not null]
+  tenant_id integer [ref: > tenant.id, not null]
+  location_type varchar(50) [default: 'pickup', note: "pickup, billing"]
+  address text
+  city varchar(100)
+  state varchar(100)
+  postal_code varchar(20)
+  country varchar(100)
+  latitude decimal(9,6)
+  longitude decimal(9,6)
+  contact_person varchar(255)
+  phone varchar(50)
+  email varchar(255)
+  is_active boolean [default: true]
+  created_at timestamp [default: `now()`]
+  
+  indexes {
+    tenant_id
+  }
+}
+Table customers {
+  id serial [pk, increment]
+  tenant_id integer [ref: > tenant.id, not null]
+  name varchar(255) [not null]
+  contact_person varchar(255)
+  email varchar(255)
+  phone varchar(50)
+  tax_id varchar(100)
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  
+  indexes {
+    (tenant_id, name) [unique]
+    tenant_id
+  }
+}
+Table customer_locations {
+  id serial [pk, increment]
+  customer_id integer [ref: > customers.id, not null]
+  tenant_id integer [ref: > tenant.id, not null]
+  location_type varchar(50) [not null, note: "billing, shipping"]
+  address text
+  city varchar(100)
+  state varchar(100)
+  postal_code varchar(20)
+  country varchar(100)
+  latitude decimal(9,6)
+  longitude decimal(9,6)
+  contact_person varchar(255)
+  phone varchar(50)
+  email varchar(255)
+  is_active boolean [default: true]
+  created_at timestamp [default: `now()`]
+  
+  indexes {
+    tenant_id
+  }
+}
+// ================================================================================
+// WAREHOUSE STRUCTURE (4-LEVEL HIERARCHY)
+// ================================================================================
+Table warehouses {
+  id serial [pk, increment]
+  tenant_id integer [ref: > tenant.id, not null]
+  name varchar(255) [not null]
+  address text
+  is_active boolean [default: true]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  
+  indexes {
+    (tenant_id, name) [unique]
+    tenant_id
+  }
+}
+Table warehouse_configs {
+  id serial [pk, increment]
+  warehouse_id integer [ref: > warehouses.id, not null]
+  tenant_id integer [ref: > tenant.id, not null]
+  picking_strategy varchar(50) [default: 'FEFO', note: "FIFO, FEFO, LIFO"]
+  auto_assign_bins boolean [default: true]
+  require_batch_tracking boolean [default: false]
+  require_expiry_tracking boolean [default: true]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  
+  indexes {
+    tenant_id
+  }
+}
+Table zones {
+  id serial [pk, increment]
+  warehouse_id integer [ref: > warehouses.id, not null]
+  tenant_id integer [ref: > tenant.id, not null]
+  name varchar(255) [not null]
+  description text
+  created_at timestamp [default: `now()`]
+  
+  indexes {
+    (warehouse_id, name) [unique]
+    tenant_id
+  }
+}
+Table aisles {
+  id serial [pk, increment]
+  zone_id integer [ref: > zones.id, not null]
+  tenant_id integer [ref: > tenant.id, not null]
+  name varchar(255) [not null]
+  description text
+  created_at timestamp [default: `now()`]
+  
+  indexes {
+    (zone_id, name) [unique]
+    tenant_id
+  }
+}
+Table shelves {
+  id serial [pk, increment]
+  aisle_id integer [ref: > aisles.id, not null]
+  tenant_id integer [ref: > tenant.id, not null]
+  name varchar(255) [not null]
+  description text
+  created_at timestamp [default: `now()`]
+  
+  indexes {
+    (aisle_id, name) [unique]
+    tenant_id
+  }
+}
+Table bins {
+  id serial [pk, increment]
+  shelf_id integer [ref: > shelves.id, not null]
+  tenant_id integer [ref: > tenant.id, not null]
+  name varchar(255) [not null]
+  barcode varchar(100)
+  max_weight decimal(10,3)
+  max_volume decimal(10,3)
+  fixed_sku varchar(255)
+  category varchar(100)
+  required_temperature varchar(50)
+  accessibility_score integer [default: 50, note: "0-100 scale"]
+  created_at timestamp [default: `now()`]
+  
+  indexes {
+    (shelf_id, name) [unique]
+    tenant_id
+  }
+}
+// ================================================================================
+// INVENTORY MANAGEMENT
+// ================================================================================
+Table inventory_items {
+  id serial [pk, increment]
+  tenant_id integer [ref: > tenant.id, not null]
+  product_id integer [ref: > products.id, not null]
+  bin_id integer [ref: > bins.id, not null]
+  available_quantity integer [not null]
+  reserved_quantity integer [default: 0]
+  expiry_date date
+  batch_number varchar(100)
+  lot_number varchar(100)
+  received_date date
+  cost_per_unit decimal(10,2)
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  
+  indexes {
+    (tenant_id, product_id, bin_id)
+    (tenant_id, expiry_date)
+    (tenant_id, batch_number)
+    tenant_id
+  }
+}
+// ================================================================================
+// PURCHASE ORDER MANAGEMENT
+// ================================================================================
+Table purchase_orders {
+  id serial [pk, increment]
+  tenant_id integer [ref: > tenant.id, not null]
+  order_number varchar(100) [unique, not null]
+  supplier_id integer [ref: > suppliers.id, not null]
+  supplier_location_id integer [ref: > supplier_locations.id]
+  status varchar(50) [not null, note: "pending, approved, received, completed"]
+  workflow_state varchar(50) [note: "create, approve, receive, putaway, complete"]
+  order_date date [not null]
+  expected_delivery_date date
+  total_amount decimal(15,2)
+  notes text
+  created_by integer [ref: > user.id]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  
+  indexes {
+    order_number
+    tenant_id
+  }
+}
+Table purchase_order_items {
+  id serial [pk, increment]
+  purchase_order_id integer [ref: > purchase_orders.id, not null]
+  product_id integer [ref: > products.id, not null]
+  tenant_id integer [ref: > tenant.id, not null]
+  ordered_quantity integer [not null]
+  received_quantity integer [default: 0]
+  unit_cost decimal(10,2)
+  total_cost decimal(15,2)
+  expected_expiry_date date
+  notes text
+  created_at timestamp [default: `now()`]
+  
+  indexes {
+    tenant_id
+  }
+}
+// ================================================================================
+// SALES ORDER MANAGEMENT
+// ================================================================================
+Table sales_orders {
+  id serial [pk, increment]
+  tenant_id integer [ref: > tenant.id, not null]
+  order_number varchar(100) [unique, not null]
+  customer_id integer [ref: > customers.id, not null]
+  billing_location_id integer [ref: > customer_locations.id]
+  shipping_location_id integer [ref: > customer_locations.id]
+  shipping_method_id integer [ref: > shipping_methods.id]
+  status varchar(50) [not null, note: "pending, allocated, picked, packed, shipped, delivered"]
+  workflow_state varchar(50) [note: "create, allocate, pick, pack, ship, deliver, complete"]
+  order_date date [not null]
+  requested_delivery_date date
+  total_amount decimal(15,2)
+  tracking_number varchar(100)
+  delivery_instructions text
+  notes text
+  created_by integer [ref: > user.id]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  
+  indexes {
+    order_number
+    tenant_id
+  }
+}
+Table sales_order_items {
+  id serial [pk, increment]
+  sales_order_id integer [ref: > sales_orders.id, not null]
+  product_id integer [ref: > products.id, not null]
+  tenant_id integer [ref: > tenant.id, not null]
+  ordered_quantity integer [not null]
+  allocated_quantity integer [default: 0]
+  picked_quantity integer [default: 0]
+  unit_price decimal(10,2)
+  total_price decimal(15,2)
+  notes text
+  created_at timestamp [default: `now()`]
+  
+  indexes {
+    tenant_id
+  }
+}
+// ================================================================================
+// CYCLE COUNT & AUDIT SYSTEM
+// ================================================================================
+Table cycle_counts {
+  id serial [pk, increment]
+  tenant_id integer [ref: > tenant.id, not null]
+  count_number varchar(100) [not null]
+  status varchar(50) [not null, note: "scheduled, in_progress, completed, approved, rejected"]
+  count_type varchar(50) [default: 'partial', note: "full, partial, spot"]
+  scheduled_date date
+  completed_date date
+  variance_threshold decimal(5,2) [default: 0.00]
+  total_variance_amount decimal(15,2)
+  notes text
+  created_by integer [ref: > user.id]
+  approved_by integer [ref: > user.id]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  
+  indexes {
+    (tenant_id, count_number) [unique]
+    tenant_id
+    status
+  }
+}
+Table cycle_count_items {
+  id serial [pk, increment]
+  cycle_count_id integer [ref: > cycle_counts.id, not null]
+  tenant_id integer [ref: > tenant.id, not null]
+  product_id integer [ref: > products.id, not null]
+  bin_id integer [ref: > bins.id, not null]
+  system_quantity integer [not null]
+  counted_quantity integer
+  variance_quantity integer
+  variance_amount decimal(15,2)
+  reason_code varchar(50)
+  reason_description text
+  counted_by integer [ref: > user.id]
+  counted_at timestamp
+  created_at timestamp [default: `now()`]
+  
+  indexes {
+    tenant_id
+    cycle_count_id
+  }
+}
+// ================================================================================
+// SHIPPING & TRANSPORTATION
+// ================================================================================
+Table transporters {
+  id serial [pk, increment]
+  tenant_id integer [ref: > tenant.id, not null]
+  name varchar(255) [not null]
+  contact_person varchar(255)
+  phone varchar(50)
+  email varchar(255)
+  service_areas jsonb [note: "Geographic coverage as JSON"]
+  is_active boolean [default: true]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  
+  indexes {
+    tenant_id
+  }
+}
+Table shipping_methods {
+  id serial [pk, increment]
+  tenant_id integer [ref: > tenant.id, not null]
+  method_type varchar(20) [not null, note: "internal, third_party"]
+  transporter_id integer [ref: > transporters.id, note: "NULL for internal"]
+  name varchar(255) [not null, note: "Internal Delivery, DHL Express, etc."]
+  estimated_days integer
+  cost_calculation varchar(50) [note: "fixed, weight_based, volumetric_based"]
+  is_active boolean [default: true]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  
+  indexes {
+    tenant_id
+  }
+}
+Table shipments {
+  id serial [pk, increment]
+  tenant_id integer [ref: > tenant.id, not null]
+  sales_order_id integer [ref: > sales_orders.id, not null]
+  shipment_number varchar(100) [unique, not null]
+  transporter_id integer [ref: > transporters.id]
+  shipping_method_id integer [ref: > shipping_methods.id]
+  tracking_number varchar(100)
+  status varchar(50) [not null, note: "ready, in_transit, delivered, failed"]
+  shipping_date timestamp
+  delivery_date timestamp
+  total_weight decimal(10,3)
+  total_volume decimal(10,3)
+  total_cost decimal(15,2)
+  notes text
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  
+  indexes {
+    (tenant_id, sales_order_id) [unique]
+    shipment_number
+    tracking_number
+  }
+}
+Table packages {
+  id serial [pk, increment]
+  tenant_id integer [ref: > tenant.id, not null]
+  shipment_id integer [ref: > shipments.id, not null]
+  package_number varchar(100) [not null]
+  barcode varchar(100) [unique]
+  dimensions varchar(100)
+  weight decimal(10,3)
+  created_at timestamp [default: `now()`]
+  
+  indexes {
+    tenant_id
+  }
+}
+Table package_items {
+  id serial [pk, increment]
+  package_id integer [ref: > packages.id, not null]
+  product_id integer [ref: > products.id, not null]
+  tenant_id integer [ref: > tenant.id, not null]
+  quantity integer [not null]
+  created_at timestamp [default: `now()`]
+  
+  indexes {
+    tenant_id
+  }
+}
+// ================================================================================
+// DOCUMENTATION & HISTORY
+// ================================================================================
+Table audit_logs {
+  id serial [pk, increment]
+  tenant_id integer [ref: > tenant.id, not null]
+  user_id integer [ref: > user.id, not null]
+  action varchar(100) [not null]
+  resource_type varchar(100) [not null]
+  resource_id integer [not null]
+  old_value jsonb
+  new_value jsonb
+  ip_address varchar(50)
+  user_agent text
+  created_at timestamp [default: `now()`]
+  
+  indexes {
+    tenant_id
+    user_id
+  }
+}
+Table movement_history {
+  id serial [pk, increment]
+  tenant_id integer [ref: > tenant.id, not null]
+  user_id integer [ref: > user.id, not null]
+  item_id integer [ref: > inventory_items.id, not null]
+  from_bin_id integer [ref: > bins.id]
+  to_bin_id integer [ref: > bins.id]
+  quantity_changed integer [not null]
+  movement_type varchar(50) [not null, note: "putaway, pick, cycle_count, adjustment"]
+  reference_type varchar(50) [note: "sales_order, purchase_order, cycle_count"]
+  reference_id integer
+  created_at timestamp [default: `now()`]
+  
+  indexes {
+    tenant_id
+    item_id
+  }
+}
+Table login_history {
+  id serial [pk, increment]
+  tenant_id integer [ref: > tenant.id, not null]
+  user_id integer [ref: > user.id, not null]
+  login_at timestamp [default: `now()`]
+  ip_address varchar(50)
+  user_agent text
+  
+  indexes {
+    tenant_id
+    user_id
+  }
+}
+Table generated_documents {
+  id serial [pk, increment]
+  tenant_id integer [ref: > tenant.id, not null]
+  document_type varchar(50) [not null, note: "packing_slip, shipping_label, po_receipt"]
+  reference_type varchar(50) [not null]
+  reference_id integer [not null]
+  file_path text [not null, note: "Local path or cloud storage URL"]
+  generated_by integer [ref: > user.id, not null]
+  created_at timestamp [default: `now()`]
+  
+  indexes {
+    tenant_id
+  }
+}
+// ================================================================================
+// WORKFLOWS & LOGIC
+// ================================================================================
+Table workflows {
+  id serial [pk, increment]
+  tenant_id integer [ref: > tenant.id, not null]
+  name varchar(255) [not null]
+  type varchar(50) [not null, note: "inbound, outbound, internal"]
+  is_active boolean [default: true, not null]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+Table workflow_steps {
+  id serial [pk, increment]
+  workflow_id integer [ref: > workflows.id, not null]
+  step_name varchar(255) [not null]
+  step_order integer [not null]
+  assigned_role_id integer [ref: > roles.id, note: "Role responsible for this step"]
+  required_input_fields jsonb [note: "Fields required for this step"]
+  required_output_fields jsonb [note: "Fields generated by this step"]
+  created_at timestamp [default: `now()`]
+}

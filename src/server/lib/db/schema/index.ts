@@ -5,3 +5,4 @@ export * from './master';
 export * from './integrationInbound';
 export * from './webhook';
 export * from './webhook_event';
+export * from './wms';
